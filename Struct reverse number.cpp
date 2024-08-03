@@ -1,10 +1,11 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <limits>
 
 using namespace std;
 
-const int MAX_SIZE = 2;
+const int MAX_SIZE = 3;
 
 struct Sepatu {
     string id;
@@ -19,14 +20,17 @@ private:
     int jumlahSepatu;
 
     void tampilkanMenu() const {
-        cout << "\nMenu Sistem Sepatu\n"
-             << "1. Create Sepatu\n"
-             << "2. Read Sepatu\n"
-             << "3. Update Sepatu\n"
-             << "4. Find Sepatu\n"
-             << "5. Delete Sepatu\n"
-             << "6. Exit\n"
-             << "Pilih menu: ";
+        cout << "\n===================================\n";
+        cout << "           Menu Sistem             \n";
+        cout << "===================================\n";
+        cout << "| 1. Create Sepatu                |\n";
+        cout << "| 2. Read Sepatu                  |\n";
+        cout << "| 3. Update Sepatu                |\n";
+        cout << "| 4. Find Sepatu                  |\n";
+        cout << "| 5. Delete Sepatu                |\n";
+        cout << "| 6. Exit                         |\n";
+        cout << "===================================\n";
+        cout << "Pilih menu: ";
     }
 
     void clearInputBuffer() const {
@@ -70,7 +74,7 @@ private:
             if (sepatuBaru.id == "0") return;
             cout << "Nama Sepatu: "; getline(cin, sepatuBaru.nama);
             cout << "Jumlah Sepatu: "; sepatuBaru.jumlah = getValidInt(0, numeric_limits<int>::max());
-            cout << "Harga Sepatu: "; sepatuBaru.harga = getValidDouble(0, 1000000);
+            cout << "Harga Sepatu: "; sepatuBaru.harga = getValidDouble(0, 10000000000000000);
             daftarSepatu[jumlahSepatu++] = sepatuBaru;
             cout << "Sepatu berhasil ditambahkan.\n";
 
@@ -88,13 +92,20 @@ private:
             cout << "Tidak ada stok.\n";
             return;
         }
-        cout << "\nDaftar Sepatu:\n";
+        cout << "\n===========================================================================\n";
+        cout << "| No |    ID    |         Nama          | Jumlah |    Harga    |    Laba    |\n";
+        cout << "=============================================================================\n";
         for (int i = 0; i < jumlahSepatu; ++i) {
             double laba = daftarSepatu[i].jumlah * daftarSepatu[i].harga;
-            cout << "ID: " << daftarSepatu[i].id << ", Nama: " << daftarSepatu[i].nama
-                 << ", Jumlah: " << daftarSepatu[i].jumlah << ", Harga: " << daftarSepatu[i].harga
-                 << ", Laba: " << laba << endl;
+            cout << "| " << setw(2) << left << (i + 1)
+                 << " | " << setw(8) << left << daftarSepatu[i].id
+                 << " | " << setw(18) << left << daftarSepatu[i].nama
+                 << " | " << setw(6) << right << daftarSepatu[i].jumlah
+                 << " | " << setw(10) << right << daftarSepatu[i].harga
+                 << " | " << setw(10) << right << laba
+                 << " |\n";
         }
+        cout << "============================================================================\n";
     }
 
     void updateSepatu() {
@@ -112,12 +123,12 @@ private:
                 if (daftarSepatu[i].id == id) {
                     int pilihan;
                     do {
-                        cout << "Apa yang ingin Anda update?\n"
-                             << "1. Nama\n"
-                             << "2. Jumlah\n"
-                             << "3. Harga\n"
-                             << "4. Selesai\n"
-                             << "Pilih: ";
+                        cout << "\nApa yang ingin Anda update?\n";
+                        cout << "1. Nama\n";
+                        cout << "2. Jumlah\n";
+                        cout << "3. Harga\n";
+                        cout << "4. Selesai\n";
+                        cout << "Pilih: ";
                         pilihan = getValidInt(1, 4);
 
                         switch (pilihan) {
@@ -126,7 +137,7 @@ private:
                             case 2:
                                 cout << "Jumlah Baru: "; daftarSepatu[i].jumlah = getValidInt(0, numeric_limits<int>::max()); break;
                             case 3:
-                                cout << "Harga Baru: "; daftarSepatu[i].harga = getValidDouble(0, 1000000); break;
+                                cout << "Harga Baru: "; daftarSepatu[i].harga = getValidDouble(0, 1000000000000000); break;
                             case 4: cout << "Update selesai.\n"; break;
                             default: cout << "Pilihan tidak valid.\n";
                         }
@@ -176,11 +187,11 @@ private:
         }
 
         while (true) {
-            cout << "Pilih opsi:\n"
-                 << "1. Hapus sepatu berdasarkan ID\n"
-                 << "2. Hapus semua data\n"
-                 << "0. Kembali\n"
-                 << "Pilih: ";
+            cout << "Pilih opsi:\n";
+            cout << "1. Hapus sepatu berdasarkan ID\n";
+            cout << "2. Hapus semua data\n";
+            cout << "0. Kembali\n";
+            cout << "Pilih: ";
             int pilihan = getValidInt(0, 2);
 
             if (pilihan == 0) return;
@@ -227,8 +238,12 @@ private:
         const string correctUsername = "hisyam";
         const string correctPassword = "richi";
         for (int attempt = 0; attempt < 3; ++attempt) {
-            cout << "Username: "; cin >> username;
-            cout << "Password: "; cin >> password;
+            cout << "\n===================================\n";
+        cout << "           Login SamChie Store      \n";
+        cout << "===================================\n";
+        cout << " Username :          \n"; cin >> username  ;
+        cout << " Password :          \n"; cin >> password  ;
+            clearInputBuffer();
             if (username == correctUsername && password == correctPassword) return true;
             cout << "Login gagal. Coba lagi.\n";
         }
@@ -265,4 +280,3 @@ int main() {
     sistem.run();
     return 0;
 }
-
