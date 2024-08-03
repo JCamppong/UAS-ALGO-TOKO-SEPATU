@@ -18,7 +18,7 @@ private:
     Sepatu daftarSepatu[MAX_SIZE];
     int jumlahSepatu;
 
-    void tampilkanMenu() {
+    void tampilkanMenu() const {
         cout << "\nMenu Sistem Sepatu\n"
              << "1. Create Sepatu\n"
              << "2. Read Sepatu\n"
@@ -29,79 +29,104 @@ private:
              << "Pilih menu: ";
     }
 
-    void clearInputBuffer() {
+    void clearInputBuffer() const {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
-    }
-
-    bool isDataAvailable() const {
-        return jumlahSepatu > 0;
     }
 
     bool isCapacityFull() const {
         return jumlahSepatu >= MAX_SIZE;
     }
 
-    void createSepatu() {
-        int opsi;
-        while (true) {
-            cout << "Apakah Anda ingin membuat sepatu baru? (1: Ya, 0: Kembali): ";
-            cin >> opsi;
+    int getValidInt(int min, int max) const {
+        int input;
+        while (!(cin >> input) || input < min || input > max) {
+            cout << "Input tidak valid. Masukkan angka antara " << min << " dan " << max << ": ";
             clearInputBuffer();
-            if (opsi == 0) return;
-            while (opsi == 1 && !isCapacityFull()) {
-                Sepatu sepatuBaru;
-                cout << "ID Sepatu (0: Kembali): "; getline(cin, sepatuBaru.id);
-                if (sepatuBaru.id == "0") return;
-                cout << "Nama Sepatu: "; getline(cin, sepatuBaru.nama);
-                cout << "Jumlah Sepatu: "; while (!(cin >> sepatuBaru.jumlah) || sepatuBaru.jumlah < 0) { clearInputBuffer(); cout << "Jumlah tidak valid. Masukkan lagi: "; }
-                cout << "Harga Sepatu: "; while (!(cin >> sepatuBaru.harga) || sepatuBaru.harga < 0) { clearInputBuffer(); cout << "Harga tidak valid. Masukkan lagi: "; }
-                clearInputBuffer();
-                daftarSepatu[jumlahSepatu++] = sepatuBaru;
-                cout << "Sepatu berhasil ditambahkan.\n";
-                cout << "Tambah sepatu lain? (1: Ya, 0: Kembali): ";
-                cin >> opsi;
-                clearInputBuffer();
-            }
+        }
+        clearInputBuffer();
+        return input;
+    }
+
+    double getValidDouble(double min, double max) const {
+        double input;
+        while (!(cin >> input) || input < min || input > max) {
+            cout << "Input tidak valid. Masukkan angka antara " << min << " dan " << max << ": ";
+            clearInputBuffer();
+        }
+        clearInputBuffer();
+        return input;
+    }
+
+    void createSepatu() {
+        if (isCapacityFull()) {
+            cout << "Kapasitas penuh. Tidak dapat menambah sepatu baru.\n";
+            return;
+        }
+
+        do {
+            Sepatu sepatuBaru;
+            cout << "ID Sepatu (0: Kembali): "; getline(cin, sepatuBaru.id);
+            if (sepatuBaru.id == "0") return;
+            cout << "Nama Sepatu: "; getline(cin, sepatuBaru.nama);
+            cout << "Jumlah Sepatu: "; sepatuBaru.jumlah = getValidInt(0, numeric_limits<int>::max());
+            cout << "Harga Sepatu: "; sepatuBaru.harga = getValidDouble(0, 1000000);
+            daftarSepatu[jumlahSepatu++] = sepatuBaru;
+            cout << "Sepatu berhasil ditambahkan.\n";
+
             if (isCapacityFull()) {
-                cout << "Kapasitas penuh.\n";
+                cout << "Kapasitas penuh. Tidak dapat menambah sepatu baru.\n";
                 return;
             }
-        }
+
+            cout << "Tambah sepatu lain? (1: Ya, 0: Kembali): ";
+        } while (getValidInt(0, 1) != 0);
     }
 
     void readSepatu() const {
-        if (!isDataAvailable()) {
+        if (jumlahSepatu == 0) {
             cout << "Tidak ada stok.\n";
             return;
         }
         cout << "\nDaftar Sepatu:\n";
         for (int i = 0; i < jumlahSepatu; ++i) {
+            double laba = daftarSepatu[i].jumlah * daftarSepatu[i].harga;
             cout << "ID: " << daftarSepatu[i].id << ", Nama: " << daftarSepatu[i].nama
-                 << ", Jumlah: " << daftarSepatu[i].jumlah << ", Harga: " << daftarSepatu[i].harga << endl;
+                 << ", Jumlah: " << daftarSepatu[i].jumlah << ", Harga: " << daftarSepatu[i].harga
+                 << ", Laba: " << laba << endl;
         }
     }
 
     void updateSepatu() {
-        if (!isDataAvailable()) {
+        if (jumlahSepatu == 0) {
             cout << "Tidak ada stok.\n";
             return;
         }
-        string id;
+
         while (true) {
             cout << "Masukkan ID Sepatu yang ingin diupdate (0: Kembali): ";
-            getline(cin, id);
+            string id; getline(cin, id);
             if (id == "0") return;
+
             for (int i = 0; i < jumlahSepatu; ++i) {
                 if (daftarSepatu[i].id == id) {
                     int pilihan;
                     do {
-                        cout << "Apa yang ingin Anda update?\n1. Nama\n2. Jumlah\n3. Harga\n4. Selesai\nPilih: ";
-                        cin >> pilihan; clearInputBuffer();
+                        cout << "Apa yang ingin Anda update?\n"
+                             << "1. Nama\n"
+                             << "2. Jumlah\n"
+                             << "3. Harga\n"
+                             << "4. Selesai\n"
+                             << "Pilih: ";
+                        pilihan = getValidInt(1, 4);
+
                         switch (pilihan) {
-                            case 1: cout << "Nama Baru: "; getline(cin, daftarSepatu[i].nama); break;
-                            case 2: cout << "Jumlah Baru: "; while (!(cin >> daftarSepatu[i].jumlah) || daftarSepatu[i].jumlah < 0) { clearInputBuffer(); cout << "Jumlah tidak valid. Masukkan lagi: "; } clearInputBuffer(); break;
-                            case 3: cout << "Harga Baru: "; while (!(cin >> daftarSepatu[i].harga) || daftarSepatu[i].harga < 0) { clearInputBuffer(); cout << "Harga tidak valid. Masukkan lagi: "; } clearInputBuffer(); break;
+                            case 1:
+                                cout << "Nama Baru: "; getline(cin, daftarSepatu[i].nama); break;
+                            case 2:
+                                cout << "Jumlah Baru: "; daftarSepatu[i].jumlah = getValidInt(0, numeric_limits<int>::max()); break;
+                            case 3:
+                                cout << "Harga Baru: "; daftarSepatu[i].harga = getValidDouble(0, 1000000); break;
                             case 4: cout << "Update selesai.\n"; break;
                             default: cout << "Pilihan tidak valid.\n";
                         }
@@ -110,51 +135,62 @@ private:
                 }
             }
             cout << "Update sepatu lain? (1: Ya, 0: Kembali): ";
-            int opsi; cin >> opsi; clearInputBuffer();
-            if (opsi == 0) return;
+            if (getValidInt(0, 1) == 0) return;
         }
     }
 
-    void findSepatu() {
-        if (!isDataAvailable()) {
+    void findSepatu() const {
+        if (jumlahSepatu == 0) {
             cout << "Tidak ada stok.\n";
             return;
         }
+
         while (true) {
             cout << "Masukkan ID Sepatu yang ingin dicari (0: Kembali): ";
             string id; getline(cin, id);
             if (id == "0") return;
+
             bool found = false;
             for (int i = 0; i < jumlahSepatu; ++i) {
                 if (daftarSepatu[i].id == id) {
+                    double laba = daftarSepatu[i].jumlah * daftarSepatu[i].harga;
                     cout << "ID: " << daftarSepatu[i].id << ", Nama: " << daftarSepatu[i].nama
-                         << ", Jumlah: " << daftarSepatu[i].jumlah << ", Harga: " << daftarSepatu[i].harga << endl;
+                         << ", Jumlah: " << daftarSepatu[i].jumlah << ", Harga: " << daftarSepatu[i].harga
+                         << ", Laba: " << laba << endl;
                     found = true;
+                    break;
                 }
             }
             if (!found) {
                 cout << "ID tidak ditemukan.\n";
             }
             cout << "Cari sepatu lain? (1: Ya, 0: Kembali): ";
-            int opsi; cin >> opsi; clearInputBuffer();
-            if (opsi == 0) return;
+            if (getValidInt(0, 1) == 0) return;
         }
     }
 
     void deleteSepatu() {
-        if (!isDataAvailable()) {
+        if (jumlahSepatu == 0) {
             cout << "Tidak ada stok.\n";
             return;
         }
-        int pilihan;
-        do {
-            cout << "Pilih opsi:\n1. Hapus sepatu berdasarkan ID\n2. Hapus semua data\n0. Kembali\nPilih: ";
-            cin >> pilihan; clearInputBuffer();
+
+        while (true) {
+            cout << "Pilih opsi:\n"
+                 << "1. Hapus sepatu berdasarkan ID\n"
+                 << "2. Hapus semua data\n"
+                 << "0. Kembali\n"
+                 << "Pilih: ";
+            int pilihan = getValidInt(0, 2);
+
             if (pilihan == 0) return;
+
             if (pilihan == 1) {
                 while (true) {
-                    cout << "ID Sepatu yang ingin dihapus (0: Kembali): "; string id; getline(cin, id);
+                    cout << "ID Sepatu yang ingin dihapus (0: Kembali): ";
+                    string id; getline(cin, id);
                     if (id == "0") return;
+
                     bool found = false;
                     for (int i = 0; i < jumlahSepatu; ++i) {
                         if (daftarSepatu[i].id == id) {
@@ -169,12 +205,13 @@ private:
                     }
                     if (!found) {
                         cout << "ID tidak ditemukan.\n";
-                    } else if (isDataAvailable()) {
+                    }
+                    if (jumlahSepatu > 0) {
                         cout << "Ada sepatu lain yang ingin dihapus? (1: Ya, 0: Kembali): ";
-                        int opsi; cin >> opsi; clearInputBuffer();
-                        if (opsi == 0) return;
+                        if (getValidInt(0, 1) == 0) return;
                     } else {
-                        return; // Tidak ada data lagi, keluar dari loop
+                        cout << "Tidak ada data lagi.\n";
+                        return;
                     }
                 }
             } else if (pilihan == 2) {
@@ -182,10 +219,10 @@ private:
                 cout << "Semua data berhasil dihapus.\n";
                 return;
             }
-        } while (pilihan != 0);
+        }
     }
 
-    bool login() {
+    bool login() const {
         string username, password;
         const string correctUsername = "hisyam";
         const string correctPassword = "richi";
@@ -206,10 +243,11 @@ public:
             cout << "Login gagal setelah 3 percobaan. Program berakhir.\n";
             return;
         }
+
         int pilihan;
         do {
             tampilkanMenu();
-            cin >> pilihan; clearInputBuffer();
+            pilihan = getValidInt(1, 6);
             switch (pilihan) {
                 case 1: createSepatu(); break;
                 case 2: readSepatu(); break;
@@ -217,7 +255,6 @@ public:
                 case 4: findSepatu(); break;
                 case 5: deleteSepatu(); break;
                 case 6: cout << "Keluar dari sistem...\n"; break;
-                default: cout << "Pilihan tidak valid.\n";
             }
         } while (pilihan != 6);
     }
@@ -228,3 +265,4 @@ int main() {
     sistem.run();
     return 0;
 }
+
